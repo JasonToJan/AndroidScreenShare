@@ -3,19 +3,18 @@ package com.sc.lesa.mediashar
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
-import android.databinding.BaseObservable
-import android.databinding.Bindable
-import android.databinding.DataBindingUtil
 import android.graphics.Color
 import android.media.projection.MediaProjectionManager
 import android.os.Build
 import android.os.Bundle
-import android.support.v7.app.AppCompatActivity
-import android.util.DisplayMetrics
 import android.util.Log
 import android.view.KeyEvent
 import android.view.View
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
+import androidx.databinding.BaseObservable
+import androidx.databinding.Bindable
+import androidx.databinding.DataBindingUtil
 import com.sc.lesa.mediashar.databinding.StratServerActivityBinding
 import java.util.*
 
@@ -34,7 +33,7 @@ class MediaProjectionActivity : AppCompatActivity(), View.OnClickListener {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding=DataBindingUtil.setContentView(this,R.layout.strat_server_activity)
+        binding= DataBindingUtil.setContentView(this,R.layout.strat_server_activity)
         binding.model=viewmodel
         myApplication=application as MyApplication
     }
@@ -153,7 +152,7 @@ class MediaProjectionActivity : AppCompatActivity(), View.OnClickListener {
 
 
 
-    inner class ViewModel:BaseObservable(){
+    inner class ViewModel: BaseObservable(){
 
         var step=ModelStatus.UNSTART
         set(value) {

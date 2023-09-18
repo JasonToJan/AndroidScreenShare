@@ -10,7 +10,7 @@
             type="Config" />
     </data>
 
-    <android.support.constraint.ConstraintLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
         tools:background="#202525"
         tools:context=".SettingParam"
         android:layout_width="match_parent"
@@ -166,5 +166,5 @@
             android:onClick="onClick"
             android:text="@string/app_but_save_setting" />
 
-    </android.support.constraint.ConstraintLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

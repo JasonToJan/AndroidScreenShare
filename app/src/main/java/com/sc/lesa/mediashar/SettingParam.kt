@@ -1,11 +1,11 @@
 package com.sc.lesa.mediashar
 
-import android.databinding.DataBindingUtil
 import android.media.AudioFormat
 import android.os.Bundle
-import android.support.v7.app.AppCompatActivity
 import android.view.View
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
+import androidx.databinding.DataBindingUtil
 import com.sc.lesa.mediashar.config.Config
 import com.sc.lesa.mediashar.databinding.ActivitySettingParamBinding
 
@@ -14,7 +14,7 @@ class SettingParam : AppCompatActivity(), View.OnClickListener {
     lateinit var binding:ActivitySettingParamBinding
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding=DataBindingUtil.setContentView(this,R.layout.activity_setting_param)
+        binding= DataBindingUtil.setContentView(this,R.layout.activity_setting_param)
         config= Config.getConfig(this)
         binding.config=config
     }

@@ -5,16 +5,17 @@ import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.databinding.BaseObservable
-import android.databinding.Bindable
-import android.databinding.DataBindingUtil
 import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
-import android.support.v4.app.ActivityCompat
-import android.support.v4.app.DialogFragment
-import android.support.v7.app.AppCompatActivity
+
 import android.view.*
+import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
+import androidx.databinding.BaseObservable
+import androidx.databinding.Bindable
+import androidx.databinding.DataBindingUtil
+import androidx.fragment.app.DialogFragment
 import com.sc.lesa.mediashar.databinding.DialoInputadreassBinding
 
 
@@ -87,7 +88,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
 
 
         override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-            binding=DataBindingUtil.inflate(inflater,R.layout.dialo_inputadreass,null,false)
+            binding= DataBindingUtil.inflate(inflater,R.layout.dialo_inputadreass,null,false)
             binding.model=mainactivity.mInputModel
             binding.callback=this
             return binding.root
@@ -95,7 +96,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
 
         override fun onStart() {
             super.onStart()
-            val window = dialog.window!!
+            val window = dialog!!.window!!
             val params: WindowManager.LayoutParams = window.getAttributes()
             params.gravity = Gravity.CENTER
             // 使用ViewGroup.LayoutParams，以便Dialog 宽度充满整个屏幕
@@ -118,7 +119,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
 
     }
 
-    class InputModel:BaseObservable(){
+    class InputModel: BaseObservable(){
         @Bindable
         var ipaddr="192.168.8.100"
         set(value) {
