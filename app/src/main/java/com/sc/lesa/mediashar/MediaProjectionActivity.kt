@@ -23,21 +23,20 @@ class MediaProjectionActivity : AppCompatActivity(), View.OnClickListener {
     lateinit var myApplication: MyApplication
     lateinit var mediaProjectionManager: MediaProjectionManager
     var preTime: Long = 0
-    lateinit var binding:StratServerActivityBinding
+    lateinit var binding: StratServerActivityBinding
 
     companion object {
         const val REQUEST_MEDIA_PROJECTION = 18
     }
 
-    val viewmodel=ViewModel()
+    val viewmodel = ViewModel()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding= DataBindingUtil.setContentView(this,R.layout.strat_server_activity)
-        binding.model=viewmodel
-        myApplication=application as MyApplication
+        binding = DataBindingUtil.setContentView(this, R.layout.strat_server_activity)
+        binding.model = viewmodel
+        myApplication = application as MyApplication
     }
-
 
 
 //
@@ -69,23 +68,23 @@ class MediaProjectionActivity : AppCompatActivity(), View.OnClickListener {
         val actionBar = supportActionBar
         actionBar!!.hide()
 
-        if (myApplication.serverStatus==MediaReaderService.ServerStatus.UNSTART){
-            viewmodel.step=ModelStatus.UNSTART
-        }else{
-            viewmodel.step=ModelStatus.STARTED
+        if (myApplication.serverStatus == MediaReaderService.ServerStatus.UNSTART) {
+            viewmodel.step = ModelStatus.UNSTART
+        } else {
+            viewmodel.step = ModelStatus.STARTED
         }
     }
 
     override fun onClick(v: View) {
         if (v.id == R.id.but_server_start) {
-            if (viewmodel.step==ModelStatus.UNSTART){
-                viewmodel.step=ModelStatus.STARTING
+            if (viewmodel.step == ModelStatus.UNSTART) {
+                viewmodel.step = ModelStatus.STARTING
                 requestCapturePermission()
-            }else if (viewmodel.step==ModelStatus.STARTED){
+            } else if (viewmodel.step == ModelStatus.STARTED) {
                 //stop
                 stopServer()
-                viewmodel.step=ModelStatus.UNSTART
-                myApplication.serverStatus=MediaReaderService.ServerStatus.UNSTART
+                viewmodel.step = ModelStatus.UNSTART
+                myApplication.serverStatus = MediaReaderService.ServerStatus.UNSTART
             }
 
         } else if (v.id == R.id.but_server_setting) {
@@ -109,11 +108,16 @@ class MediaProjectionActivity : AppCompatActivity(), View.OnClickListener {
 
     private fun requestCapturePermission() {
         if (Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP) {
+            startServer()
+
             //5.0 之后才允许使用屏幕截图
             mediaProjectionManager = getSystemService(
-                    Context.MEDIA_PROJECTION_SERVICE) as MediaProjectionManager
-            startActivityForResult(mediaProjectionManager.createScreenCaptureIntent(),
-                    REQUEST_MEDIA_PROJECTION)
+                Context.MEDIA_PROJECTION_SERVICE
+            ) as MediaProjectionManager
+            startActivityForResult(
+                mediaProjectionManager.createScreenCaptureIntent(),
+                REQUEST_MEDIA_PROJECTION
+            )
         } else {
             Toast.makeText(this, "系统版本低于5.0!", Toast.LENGTH_SHORT).show()
         }
@@ -125,71 +129,71 @@ class MediaProjectionActivity : AppCompatActivity(), View.OnClickListener {
             REQUEST_MEDIA_PROJECTION -> if (resultCode == Activity.RESULT_OK && data != null) {
                 val mediaProjection = mediaProjectionManager.getMediaProjection(resultCode, data)
                 if (mediaProjection == null) {
-                    Log.e(this.javaClass.name, "media projection is null")
+                    Log.e("TEST##", "media projection is null")
                     return
                 }
                 myApplication.mediaProjection = mediaProjection
-                startServer()
-                viewmodel.step=ModelStatus.STARTED
-                myApplication.serverStatus=MediaReaderService.ServerStatus.STARTED
+                viewmodel.step = ModelStatus.STARTED
+                myApplication.serverStatus = MediaReaderService.ServerStatus.STARTED
             } else {
-                viewmodel.step=ModelStatus.UNSTART
+                viewmodel.step = ModelStatus.UNSTART
             }
         }
     }
 
     fun startServer() {
-        val intent=Intent(this,MediaReaderService::class.java)
-        intent.putExtra("CMD",1)
+        val intent = Intent(this, MediaReaderService::class.java)
+        intent.putExtra("CMD", 1)
         startService(intent)
     }
 
-    fun stopServer(){
-        val intent=Intent(this,MediaReaderService::class.java)
-        intent.putExtra("CMD",2)
+    fun stopServer() {
+        val intent = Intent(this, MediaReaderService::class.java)
+        intent.putExtra("CMD", 2)
         startService(intent)
     }
 
 
+    inner class ViewModel : BaseObservable() {
 
-    inner class ViewModel: BaseObservable(){
+        var step = ModelStatus.UNSTART
+            set(value) {
+                when (value) {
+                    ModelStatus.UNSTART -> {
+                        buttontext = getString(R.string.app_but_share)
+                        buttonenable = true
+                    }
 
-        var step=ModelStatus.UNSTART
-        set(value) {
-            when(value){
-                ModelStatus.UNSTART->{
-                    buttontext=getString(R.string.app_but_share)
-                    buttonenable=true
+                    ModelStatus.STARTING -> {
+                        buttontext = getString(R.string.app_but_share)
+                        buttonenable = false
+                    }
+
+                    ModelStatus.STARTED -> {
+                        buttontext = getString(R.string.app_but_stop)
+                        buttonenable = true
+                    }
                 }
-                ModelStatus.STARTING->{
-                    buttontext=getString(R.string.app_but_share)
-                    buttonenable=false
-                }
-                ModelStatus.STARTED->{
-                    buttontext=getString(R.string.app_but_stop)
-                    buttonenable=true
-                }
+                field = value
             }
-            field=value
-        }
 
         @Bindable
-        var buttontext=""
-        set(value) {
-            field=value
-            notifyChange()
-        }
+        var buttontext = ""
+            set(value) {
+                field = value
+                notifyChange()
+            }
 
         @Bindable
-        var buttonenable=true
-        set(value) {
-            field=value
-            notifyChange()
-        }
+        var buttonenable = true
+            set(value) {
+                field = value
+                notifyChange()
+            }
 
     }
 
-    enum class ModelStatus{
+    enum class ModelStatus {
         UNSTART,
         STARTING,
         STARTED

@@ -17,7 +17,7 @@ import com.sc.lesa.mediashar.jlib.threads.VoiceSender
 class MediaReaderService : Service(){
 
     companion object {
-        private val TAG = MediaReaderService::class.java.simpleName
+        private val TAG = "TEST##"
         const val START_SERVER = 1
         const val STOP_SERVER = 2
         private const val UNLOCK_NOTIFICATION_CHANNEL_ID = "unlock_notification"
@@ -38,6 +38,7 @@ class MediaReaderService : Service(){
         initNotificationChannel()
         Log.d(TAG, "onCreate()")
     }
+
 
     private fun stratSendServer() {
         serverStatus = START_SERVER
@@ -71,6 +72,7 @@ class MediaReaderService : Service(){
 
     override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
         val cmd=intent.getIntExtra("CMD",0)
+        Log.e("TEST##", "cmd====${cmd}")
         when(cmd){
             START_SERVER->{
                 stratSendServer()
