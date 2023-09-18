@@ -5,5 +5,5 @@ import android.media.projection.MediaProjection
 
 class MyApplication : Application() {
     lateinit var mediaProjection: MediaProjection
-    var serverStatus=MediaReaderService.ServerStatus.UNSTART
+    var serverStatus = MediaReaderService.ServerStatus.UNSTART
 }

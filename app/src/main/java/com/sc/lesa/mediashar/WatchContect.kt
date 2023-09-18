@@ -2,6 +2,7 @@ package com.sc.lesa.mediashar
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.KeyEvent
 import android.view.SurfaceHolder
 import android.view.SurfaceView
@@ -72,7 +73,9 @@ class WatchContect : AppCompatActivity(), SurfaceHolder.Callback {
         thread(true) {
             socketClientThread = ClientThread(ip)
             try {
+                Log.e("TEST##", "connect start...ip=${ip}")
                 socketClientThread.connect()
+                Log.e("TEST##", "connect end...")
             } catch (e: IOException) {
                 e.printStackTrace()
                 runOnUiThread {
@@ -85,6 +88,8 @@ class WatchContect : AppCompatActivity(), SurfaceHolder.Callback {
             mdiaPlayThread!!.start()
             voicePlayThread = VoicePlayThread(socketClientThread.dataPackList)
             voicePlayThread!!.start()
+
+            Log.e("TEST##", "socketClientThread start...ip=${ip}")
         }
     }
 
@@ -97,6 +102,7 @@ class WatchContect : AppCompatActivity(), SurfaceHolder.Callback {
 
     private inner class ClientThread(ip:String):SocketClientThread(ip,9090){
         override fun onError(t: Throwable) {
+            Log.e("TEST##", "连接服务失败...=${t.message}")
             runOnUiThread {
                 Toast.makeText(this@WatchContect,"${getString(R.string.error)}:${t.message}",Toast.LENGTH_SHORT).show()
             }

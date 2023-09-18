@@ -121,7 +121,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
 
     class InputModel: BaseObservable(){
         @Bindable
-        var ipaddr="192.168.8.100"
+        var ipaddr="192.168.2.17"
         set(value) {
             field=value
             notifyChange()

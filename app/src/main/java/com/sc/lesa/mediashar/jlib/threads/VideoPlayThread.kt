@@ -12,7 +12,7 @@ class VideoPlayThread(var surface: Surface, var inputdata: DataPackList) : Threa
     lateinit var videodecoder: Decoder
 
     companion object {
-        val TAG = VideoPlayThread::class.java.name
+        val TAG = "TEST##"
     }
 
 

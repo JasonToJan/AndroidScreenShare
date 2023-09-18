@@ -13,11 +13,17 @@ import com.sc.lesa.mediashar.config.Config
 import com.sc.lesa.mediashar.jlib.server.SocketServerThread
 import com.sc.lesa.mediashar.jlib.threads.VideoSender
 import com.sc.lesa.mediashar.jlib.threads.VoiceSender
+import java.net.Inet4Address
+import java.net.InetAddress
+import java.net.NetworkInterface
+import java.net.SocketException
+import java.util.Enumeration
 
-class MediaReaderService : Service(){
+class MediaReaderService : Service() {
 
     companion object {
         private val TAG = "TEST##"
+        const val INIT_SERVER = 0
         const val START_SERVER = 1
         const val STOP_SERVER = 2
         private const val UNLOCK_NOTIFICATION_CHANNEL_ID = "unlock_notification"
@@ -30,34 +36,51 @@ class MediaReaderService : Service(){
     lateinit var videoSender: VideoSender
     lateinit var voiceSender: VoiceSender
     lateinit var myApplication: MyApplication
-    val handler=Handler()
+    val handler = Handler()
 
     override fun onCreate() {
         super.onCreate()
-        myApplication=application as MyApplication
+        myApplication = application as MyApplication
         initNotificationChannel()
         Log.d(TAG, "onCreate()")
+    }
+
+    private fun initServer() {
+        buildNotification(
+            R.mipmap.ic_launcher,
+            getString(R.string.app_name),
+            getString(R.string.app_title_runing)
+        )
     }
 
 
     private fun stratSendServer() {
         serverStatus = START_SERVER
-        buildNotification(R.mipmap.ic_launcher, getString(R.string.app_name), getString(R.string.app_title_runing))
+//        buildNotification(
+//            R.mipmap.ic_launcher,
+//            getString(R.string.app_name),
+//            getString(R.string.app_title_runing)
+//        )
+        Log.e("TEST##", "stratSendServer====开始~~")
         socketServerThread = SendThread()
         socketServerThread.start()
         val config: Config = Config.getConfig(this)
-         try {
-            videoSender=VideoSender(socketServerThread, myApplication.mediaProjection,
+        try {
+            Log.e("TEST##", "VideoSender====开始~~")
+            videoSender = VideoSender(
+                socketServerThread, myApplication.mediaProjection,
                 config.width.toInt(), config.height.toInt(),
                 config.videoBitrate.toInt(), config.videoFrameRate.toInt()
             )
-            voiceSender = VoiceSender(socketServerThread,
-                 config.channelMode, config.encodeFormat, config.channelCount.toInt(),
-                 config.voiceByteRate.toInt(), config.voiceSampleRate.toInt()
+            voiceSender = VoiceSender(
+                socketServerThread,
+                config.channelMode, config.encodeFormat, config.channelCount.toInt(),
+                config.voiceByteRate.toInt(), config.voiceSampleRate.toInt()
             )
-
+            Log.e("TEST##", "VideoSender====创建成功~~")
         } catch (throwable: Throwable) {
             throwable.printStackTrace()
+            Log.e("TEST##", "服务开启失败哦 ${throwable.message}")
             return
         }
     }
@@ -71,13 +94,17 @@ class MediaReaderService : Service(){
     }
 
     override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
-        val cmd=intent.getIntExtra("CMD",0)
+        val cmd = intent.getIntExtra("CMD", 0)
         Log.e("TEST##", "cmd====${cmd}")
-        when(cmd){
-            START_SERVER->{
+        when (cmd) {
+            INIT_SERVER -> {
+                initServer()
+            }
+            START_SERVER -> {
                 stratSendServer()
             }
-            STOP_SERVER->{
+
+            STOP_SERVER -> {
                 stopServer()
             }
         }
@@ -87,7 +114,6 @@ class MediaReaderService : Service(){
     override fun onBind(intent: Intent): IBinder {
         throw Exception("unable to bind!")
     }
-
 
 
     override fun onDestroy() {
@@ -107,7 +133,8 @@ class MediaReaderService : Service(){
             mChannel.enableLights(false) //是否显示通知指示灯
             mChannel.enableVibration(false) //是否振动
             val notificationManager = getSystemService(
-                    Context.NOTIFICATION_SERVICE) as NotificationManager
+                Context.NOTIFICATION_SERVICE
+            ) as NotificationManager
             notificationManager.createNotificationChannel(mChannel) //创建通知渠道
         }
     }
@@ -117,10 +144,11 @@ class MediaReaderService : Service(){
 
         // 必需的通知内容
         builder.setContentTitle(tiile)
-                .setContentText(contenttext)
-                .setSmallIcon(resId)
+            .setContentText(contenttext)
+            .setSmallIcon(resId)
         val notifyIntent = Intent(this, MediaProjectionActivity::class.java)
-        val notifyPendingIntent = PendingIntent.getService(this, 0, notifyIntent, PendingIntent.FLAG_UPDATE_CURRENT)
+        val notifyPendingIntent =
+            PendingIntent.getService(this, 0, notifyIntent, PendingIntent.FLAG_UPDATE_CURRENT)
         builder.setContentIntent(notifyPendingIntent)
         val notification = builder.build()
         //常驻状态栏的图标
@@ -140,18 +168,49 @@ class MediaReaderService : Service(){
     }
 
 
-    enum class ServerStatus{
+    enum class ServerStatus {
         UNSTART,
         STARTED
     }
 
-    private inner class SendThread:SocketServerThread(9090) {
+    private inner class SendThread : SocketServerThread(9090) {
+
+        override fun run() {
+            val ipAddress = getLocalIpAddress()
+            Log.d("TEST##", "IP Address: $ipAddress")
+            super.run()
+        }
+
         override fun onError(t: Throwable) {
-            myApplication.serverStatus=ServerStatus.UNSTART
+            myApplication.serverStatus = ServerStatus.UNSTART
             handler.post {
-                Toast.makeText(this@MediaReaderService,"${getString(R.string.server_error_start)}:${t.message}",Toast.LENGTH_SHORT).show()
+                Toast.makeText(
+                    this@MediaReaderService,
+                    "${getString(R.string.server_error_start)}:${t.message}",
+                    Toast.LENGTH_SHORT
+                ).show()
             }
         }
+    }
+
+
+    fun getLocalIpAddress(): String {
+        try {
+            val enumNetworkInterfaces = NetworkInterface.getNetworkInterfaces()
+            while (enumNetworkInterfaces.hasMoreElements()) {
+                val networkInterface = enumNetworkInterfaces.nextElement()
+                val enumInetAddress = networkInterface.inetAddresses
+                while (enumInetAddress.hasMoreElements()) {
+                    val inetAddress = enumInetAddress.nextElement()
+                    if (!inetAddress.isLoopbackAddress && inetAddress is Inet4Address) {
+                        return inetAddress.hostAddress
+                    }
+                }
+            }
+        } catch (ex: SocketException) {
+            Log.e("IP Address", "getLocalIpAddress", ex)
+        }
+        return "ERROR"
     }
 
 

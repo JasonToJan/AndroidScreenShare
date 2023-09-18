@@ -17,7 +17,7 @@ class VoicePlayThread(var inputdata: DataPackList) : Thread(TAG), OnDecodeDone {
     var hasInitVoice = false
 
     companion object {
-        val TAG = VoicePlayThread::class.java.name
+        val TAG = "TEST##"
     }
 
     private fun initVoiceDecoder(ChannelMode: Int, EncodeFormat: Int, ChannelCount: Int,

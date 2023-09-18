@@ -108,7 +108,7 @@ class MediaProjectionActivity : AppCompatActivity(), View.OnClickListener {
 
     private fun requestCapturePermission() {
         if (Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP) {
-            startServer()
+            initServer()
 
             //5.0 之后才允许使用屏幕截图
             mediaProjectionManager = getSystemService(
@@ -132,6 +132,7 @@ class MediaProjectionActivity : AppCompatActivity(), View.OnClickListener {
                     Log.e("TEST##", "media projection is null")
                     return
                 }
+                startServer()
                 myApplication.mediaProjection = mediaProjection
                 viewmodel.step = ModelStatus.STARTED
                 myApplication.serverStatus = MediaReaderService.ServerStatus.STARTED
@@ -139,6 +140,12 @@ class MediaProjectionActivity : AppCompatActivity(), View.OnClickListener {
                 viewmodel.step = ModelStatus.UNSTART
             }
         }
+    }
+
+    fun initServer() {
+        val intent = Intent(this, MediaReaderService::class.java)
+        intent.putExtra("CMD", 0)
+        startService(intent)
     }
 
     fun startServer() {
